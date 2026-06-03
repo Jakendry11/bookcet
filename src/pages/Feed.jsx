@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {ThumbsUp, MessageCircle, Plus, PaperClip, Image} from "lucide-react"
+import {ThumbsUp, MessageCircle, Plus, Paperclip, Image, BookOpen} from "lucide-react"
 import Navbar from "@/components/ui/navbar"
 import {Button} from "@/components/ui/button"
 import {Avatar, AvatarFallback} from "@/components/ui/avatar"
