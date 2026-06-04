@@ -1,195 +1,124 @@
-import {useState} from "react"
-import {ThumbsUp, MessageCircle, Plus, Paperclip, Image, BookOpen} from "lucide-react"
-import Navbar from "@/components/ui/navbar"
-import {Button} from "@/components/ui/button"
-import {Avatar, AvatarFallback} from "@/components/ui/avatar"
-import {Badge} from "@/components/ui/badge"
+import { useState } from "react"
+import { ThumbsUp, MessageCircle, Plus, BookOpen, Search } from "lucide-react"
+import Navbar from "@/components/ui/Navbar"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 
 const disciplinas = [
-    "Todas", 
-    "Matemática",
-    "Física",
-    "Química",
-    "Língua Portuguesa",
-    "Língua Inglesa",
-    "Informática",
-    "Eletrotecnia",
-    "Organização e Gestão Industrial",
-    "Organização e Gestão Empresarial", 
-    "Formação de Atitudes Integradoras", 
-    "Técnicas de Reparação de Equipamentos Informáticos",
-    "Técnicas de Linguagem de Programação",
-    "Sistemas e Estruturas de Arquitetura de Computadores",
-    "Projeto Tecnológico",
-    "Empreendedorismo",
-    "Desenho Técnico",
+  "Todas",
+  "Matemática",
+  "Física",
+  "Química",
+  "Português",
+  "Inglês",
+  "Programação",
+  "Desenho",
+  "Empreendedorismo",
 ]
 
-const roadmapItems = [
-    {texto: "Tópico 1", estado: "active"},
-    {texto: "Tópico 2", estado: "pending"},
-    {texto: "Tópico 3", estado: "pending"},
-]
+export default function Feed({ publicacoes = [] }) {
+  const [filtro, setFiltro] = useState("Todas")
+  const [votados, setVotados] = useState([])
+  const [pesquisa, setPesquisa] = useState("")
 
-export default function Feed({publicacoes = [] }) {
-    const [filtro, setFiltro] = useState("Todas")
-    const [votados, setVotados] = useState([])
+  const publicacoesFiltradas = publicacoes.filter((pub) => {
+    const filtroOk = filtro === "Todas" || pub.disciplina === filtro
+    const pesquisaOk = pub.titulo.toLowerCase().includes(pesquisa.toLowerCase())
+    return filtroOk && pesquisaOk
+  })
 
-    const publicacoesFiltradas = filtro === "Todas" 
-    ? publicacoes
-    : publicacoes.filter(pub => pub.disciplina === filtro)
+  const toggleVoto = (id) => {
+    setVotados((prev) =>
+      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
+    )
+  }
 
-    const toggleVoto = (id) => {
-        setVotados(prev =>
-            prev.includes(id)
-            ? prev.filter(v => v !== id)
-            : [...prev, id]
-        )
-    }
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <Navbar activePage="feed" />
 
-    return (
-        <div className="min-h-screen bg-gray-50">
-            <Navbar activePage="Feed"/>
-        
-            <div className="max-w-6xl mx-auto px-6 py-8 grid ggrid-cols-3 gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-                {/* Coluna principal */}
-                <div className="col-span-2">
-                    
-                    <div className="flex items-center justify-between mb-4">                    
-                        <h1 className="text-base font-semibold text-[#0D2B6B]">Feed da comunidade</h1>
-                        <Button className="bg-[F5C200] text-[#0D2B6B] hover:bg-[#e6b800] text-sm font-medium flex items-center gap-2">
-                            <Plus size={14} />
-                            Nova pergunta
-                        </Button>
-                    </div>
-
-                </div>
-                
-                {/* Filtros */}
-
-                <div className="flex gap-2 flex wrap mb-5">
-                    {disciplinas.map((d) => (
-                        <button
-                            key={d}
-                            onClick={() => setFiltro(d)}
-                            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                                filtro === d
-                                    ? "bg-[#0D2B6B] text-white border-[#0D2B6B]"
-                            : "bg-white text-slate-500 border-slate-200 hover:border-[#0D2B6B] hover:text-[#0D2B6B]"
-                            }`}
-                        >
-                            {d}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Cards ou estado vazio */}
-                <div>
-                {publicacoesFiltradas.length === 0 ? (
-                    <div className="bg-white border border-slate-200 rounded-xl p-12 flex flex-col items-center justify-center text-center">
-                        <div className="w-12 h-12 rounded-full bg-[#EBF2FF] flex items-center justify-center mb-4">
-                            <BookOpen size={22} className="text-[#1A4BA0]"/>
-                        </div>
-                        <p className="text-sm font-medium text-[#0D2B6B] mb-1">Ainda não há publicações.</p>
-                        <p className="text-xs text-slate-400 mb-5">Sê o primeiro a partilhar uma dúvida com a comunidade.</p>
-                        <Button className="bg-[F5C200] text-[#0D2B6B] hover:bg-[#e6b800] text-sm font-medium flex items-center gap-2">
-                            <Plus size={14} />
-                            Nova pergunta
-                        </Button>
-                    </div>
-                ) : (
-                    <div className="flex flex-col gap-3">
-                        {publicacoesFiltradas.map((pub) => (
-                            <div key={pub.id} className="bg-white border border-slate-200 rounded-xl p-5 hover:border-[#2E6DA4] transition-colors cursor-pointer">
-                                <div className="flex items-start gap-3 mb-3">
-                                    <Avatar className="w-8 h-8">
-                                        <AvatarFallback className="bg-[#EBF2FF] text-[#1A4BA0] text-xs font-medium">
-                                            {pub.iniciais}
-                                            </AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-sm font-medium text-[#0D2B6B]">{pub.autor}</span>
-                                             <span className="text-xs text-slate-400">· {pub.tempo}</span>
-                        {pub.respondida && (
-                          <span className="ml-auto text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full font-medium">
-                            Respondida
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm font-medium text-slate-800 mb-1">{pub.titulo}</p>
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-slate-500 leading-relaxed mb-3 ml-11">{pub.preview}</p>
-
-                  {pub.anexo && (
-                    <div className="ml-11 flex items-center gap-2 text-xs text-slate-400 mb-3">
-                      {pub.anexo.tipo === "imagem" ? <Image size={13} /> : <Paperclip size={13} />}
-                      <span>{pub.anexo.nome}</span>
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-2 ml-11">
-                    <Badge variant="secondary" className="bg-[#EBF2FF] text-[#1A4BA0] text-xs">
-                      {pub.disciplina}
-                    </Badge>
-                    <button
-                      onClick={() => toggleVoto(pub.id)}
-                      className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md border transition-colors ${
-                        votados.includes(pub.id)
-                          ? "bg-[#EBF2FF] text-[#1A4BA0] border-[#1A4BA0]"
-                          : "text-slate-500 border-slate-200 hover:border-[#1A4BA0] hover:text-[#1A4BA0]"
-                      }`}
-                    >
-                      <ThumbsUp size={12} />
-                      {votados.includes(pub.id) ? pub.votos + 1 : pub.votos}
-                    </button>
-                    <button className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md border border-slate-200 text-slate-500 hover:border-[#1A4BA0] hover:text-[#1A4BA0] transition-colors">
-                      <MessageCircle size={12} />
-                      {pub.respostas}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <div className="col-span-1 flex flex-col gap-4">
-
-          <div className="bg-white border border-slate-200 rounded-xl p-5">
-            <p className="text-sm font-medium text-[#0D2B6B] mb-1">O meu roadmap</p>
-            <p className="text-xs text-slate-400 mb-4">Completa o onboarding para ver o teu roadmap.</p>
-            <div className="flex flex-col gap-2.5">
-              {roadmapItems.map((item) => (
-                <div key={item.texto} className="flex items-center gap-2.5">
-                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                    item.estado === "done" ? "bg-green-500"
-                    : item.estado === "active" ? "bg-[#F5C200]"
-                    : "bg-slate-200"
-                  }`} />
-                  <span className="text-xs text-slate-400">{item.texto}</span>
-                </div>
-              ))}
-            </div>
-            <Button className="w-full mt-4 bg-[#0D2B6B] text-white hover:bg-[#1A4BA0] text-xs">
-              Completar onboarding
+        {/* Cabeçalho */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold text-[#0D2B6B]">Feed da comunidade</h1>
+            <Button className="bg-[#F5C200] text-[#0D2B6B] hover:bg-[#e6b800] font-semibold">
+              <Plus size={18} className="mr-2" />
+              Nova pergunta
             </Button>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-xl p-5">
-            <p className="text-sm font-medium text-[#0D2B6B] mb-3">Disciplinas ativas</p>
-            <p className="text-xs text-slate-400">
-              Ainda não há actividade. As disciplinas com mais perguntas aparecem aqui.
-            </p>
+          {/* Barra de pesquisa */}
+          <div className="relative">
+            <Search className="absolute left-3 top-3 text-slate-400" size={18} />
+            <Input
+              placeholder="Pesquisar perguntas..."
+              value={pesquisa}
+              onChange={(e) => setPesquisa(e.target.value)}
+              className="pl-10 py-2 text-sm"
+            />
           </div>
+        </div>
 
+        {/* Filtros */}
+        <div className="mb-8 flex gap-2 flex-wrap">
+          {disciplinas.map((d) => (
+            <button
+              key={d}
+              onClick={() => setFiltro(d)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                filtro === d
+                  ? "bg-[#0D2B6B] text-white shadow-md"
+                  : "bg-white text-slate-600 border border-slate-200 hover:border-[#0D2B6B] hover:text-[#0D2B6B]"
+              }`}
+            >
+              {d}
+            </button>
+          ))}
+        </div>
+
+        {/* Layout com grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+          {/* Feed principal — 2 colunas */}
+          <div className="lg:col-span-2">
+            {publicacoesFiltradas.length === 0 ? (
+              <div className="bg-white rounded-xl p-12 text-center border border-slate-200">
+                <div className="w-16 h-16 rounded-full bg-[#EBF2FF] flex items-center justify-center mx-auto mb-4">
+                  <BookOpen size={28} className="text-[#1A4BA0]" />
+                </div>
+                <h3 className="text-lg font-semibold text-[#0D2B6B] mb-2">Nenhuma pergunta encontrada</h3>
+                <p className="text-sm text-slate-500 mb-6">
+                  Sê o primeiro a partilhar uma dúvida com a comunidade ou ajusta o filtro.
+                </p>
+                <Button className="bg-[#F5C200] text-[#0D2B6B] hover:bg-[#e6b800] font-semibold">
+                  <Plus size={16} className="mr-2" />
+                  Nova pergunta
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {publicacoesFiltradas.map((pub) => (
+                  <div
+                    key={pub.id}
+                    className="bg-white rounded-xl p-6 border border-slate-200 hover:border-[#0D2B6B] hover:shadow-lg transition-all cursor-pointer"
+                  >
+                    {/* Header com autor e tempo */}
+                    <div className="flex items-start gap-4 mb-4">
+                      <Avatar className="w-10 h-10 flex-shrink-0">
+                        <AvatarFallback className="bg-[#EBF2FF] text-[#1A4BA0]"></AvatarFallback>
+                      </Avatar>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    
     </div>
   )
 }

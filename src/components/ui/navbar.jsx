@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 const navLinks = [
   { label: "Feed", icon: Home, href: "/feed" },
   { label: "Biblioteca", icon: BookOpen, href: "/biblioteca" },
-  { label: "IA", icon: Brain, href: "/ia", accent: true },
+  { label: "IA", icon: Brain, href: "/ai", accent: true },
 ]
 
 export default function Navbar({ activePage = "feed" }) {
