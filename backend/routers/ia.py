@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import Optional
 from database import get_db
-from models import ConversaIA, MensagemIA, Utilizador
+from models import ConversaIA, MensagemIA, Utilizador, UtilizadorDisciplina
 from schemas import MensagemIACreate
 from routers.usuarios import get_utilizador_atual
 from services.groq_service import enviar_mensagem
+
 router = APIRouter(prefix="/ia", tags=["IA Académica"])
 
 @router.post("/conversas", status_code=201)
@@ -27,7 +27,6 @@ def listar_conversas(
     conversas = db.query(ConversaIA).filter(
         ConversaIA.utilizador_id == utilizador.id
     ).order_by(ConversaIA.atualizado_em.desc()).all()
-    
     return [{"id": c.id, "titulo": c.titulo, "criado_em": c.criado_em} for c in conversas]
 
 @router.post("/conversas/{conversa_id}/mensagens")
@@ -45,11 +44,7 @@ def enviar_mensagem_ia(
         raise HTTPException(status_code=404, detail="Conversa não encontrada")
 
     # Guarda mensagem do utilizador
-    msg_user = MensagemIA(
-        conversa_id=conversa_id,
-        papel="user",
-        conteudo=dados.conteudo,
-    )
+    msg_user = MensagemIA(conversa_id=conversa_id, papel="user", conteudo=dados.conteudo)
     db.add(msg_user)
     db.commit()
 
@@ -58,28 +53,32 @@ def enviar_mensagem_ia(
         MensagemIA.conversa_id == conversa_id
     ).order_by(MensagemIA.criado_em).all()
 
-    mensagens_anthropic = [
-        {"role": m.papel, "content": m.conteudo}
-        for m in historico
-    ]
+    mensagens = [{"role": m.papel, "content": m.conteudo} for m in historico]
 
-    # Chama Anthropic
+    # Busca disciplinas do utilizador
+    disciplinas = db.query(UtilizadorDisciplina).filter(
+        UtilizadorDisciplina.utilizador_id == utilizador.id
+    ).all()
+
+    perfil = {
+        "nome": utilizador.nome,
+        "ano_escolar": utilizador.ano_escolar,
+        "curso": utilizador.curso,
+        "disciplinas": [d.disciplina for d in disciplinas]
+    }
+
+    # Chama Groq com perfil do utilizador
     try:
-        resposta_texto = enviar_mensagem(mensagens_anthropic)
+        resposta_texto = enviar_mensagem(mensagens, perfil)
     except Exception as e:
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Erro na IA: {str(e)}")
 
     # Guarda resposta
-    msg_assistant = MensagemIA(
-        conversa_id=conversa_id,
-        papel="assistant",
-        conteudo=resposta_texto,
-    )
+    msg_assistant = MensagemIA(conversa_id=conversa_id, papel="assistant", conteudo=resposta_texto)
     db.add(msg_assistant)
 
-    # Título automático na primeira mensagem
     if len(historico) == 1:
         conversa.titulo = dados.conteudo[:60]  # type: ignore[assignment]
 

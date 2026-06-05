@@ -36,8 +36,21 @@ export function AuthProvider({ children }) {
     ? utilizador.nome.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase()
     : "?"
 
+    const recarregarUtilizador = async () => {
+  const token = localStorage.getItem("token")
+  if (!token) return
+  const res = await fetch("http://localhost:8000/usuarios/me", {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  if (res.ok) {
+    const data = await res.json()
+    setUtilizador(data)
+  }
+}
+
+
   return (
-    <AuthContext.Provider value={{ utilizador, iniciais, login, logout, carregando }}>
+    <AuthContext.Provider value={{ utilizador, iniciais, login, logout, carregando, recarregarUtilizador }}>
       {children}
     </AuthContext.Provider>
   )
