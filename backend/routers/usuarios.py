@@ -22,6 +22,18 @@ def get_utilizador_atual(token: str = Depends(oauth2), db: Session = Depends(get
 def get_perfil(utilizador: Utilizador = Depends(get_utilizador_atual)):
     return utilizador
 
+@router.post("/onboarding")
+def guardar_onboarding(
+    dados: dict,
+    utilizador: Utilizador = Depends(get_utilizador_atual),
+    db: Session = Depends(get_db)
+):
+    utilizador.ano_escolar = dados.get("ano_escolar", utilizador.ano_escolar)
+    utilizador.curso = dados.get("curso", utilizador.curso)
+    db.commit()
+    db.refresh(utilizador)
+    return {"message": "Onboarding guardado com sucesso"}
+
 @router.post("/disciplinas")
 def guardar_disciplinas(
     dados: dict,
