@@ -100,15 +100,34 @@ export default function Onboarding() {
     )
   }
 
-  const avancar = () => {
+  const avancar = async () => {
     if (passo === 1 && (!nome || !email || !ano || !curso)) {
       alert("Preenche todos os campos")
       return
     }
+
     if (passo === 2 && disciplinasSelecionadas.length === 0) {
       alert("Seleciona pelo menos uma disciplina")
       return
     }
+
+    // if first step, send onboarding to backend
+    if (passo === 1) {
+      try {
+        const token = localStorage.getItem("token")
+        await fetch("http://localhost:8000/usuarios/onboarding", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ ano_escolar: ano, curso })
+        })
+      } catch (e) {
+        console.error("Erro ao guardar onboarding", e)
+      }
+    }
+
     if (passo < 4) setPasso(passo + 1)
   }
 
