@@ -2,6 +2,9 @@ import { useState } from "react"
 import { ChevronRight, ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useEffect } from "react"
+import { useAuth } from "@/context/AuthContext"
+import { useNavigate } from "react-router-dom"
 
 const anos = ["10ª classe", "11ª classe", "12ª classe"]
 
@@ -54,7 +57,7 @@ const disciplinasEspecificasPorCursoAno = {
     "12ª classe": ["Técnicas de Medições e Orçamento", "Técnicas de Construção Civil", "Desenho de Projeto", "Informática Aplicada na Construção Civil", "Física", "Empreendedorismo", "Organização e Gestão Industrial"],
   },
 }
-
+{/*Corrigir ---> Adicionar manualmente os tópicos*/}
 const topicosPorDisciplina = {
   "Matemática": ["Álgebra", "Geometria", "Cálculo", "Estatística"],
   "Física": ["Cinemática", "Dinâmica", "Energia", "Ondas"],
@@ -66,6 +69,10 @@ const topicosPorDisciplina = {
 }
 
 export default function Onboarding() {
+
+  const { utilizador } = useAuth()
+  const navigate = useNavigate()
+
   const [passo, setPasso] = useState(1)
 
   const [nome, setNome] = useState("")
@@ -277,7 +284,10 @@ export default function Onboarding() {
                 <li><strong>Disciplinas:</strong> {disciplinasSelecionadas.length}</li>
               </ul>
             </div>
-            <Button className="w-full bg-[#F5C200] text-[#0D2B6B] hover:bg-[#e6b800] font-medium">
+            <Button
+              onClick={() => navigate("/feed")}
+              className="w-full bg-[#F5C200] text-[#0D2B6B] hover:bg-[#e6b800] font-medium"
+            >
               Ir para o Feed
             </Button>
           </div>

@@ -5,8 +5,7 @@ from database import get_db
 from models import ConversaIA, MensagemIA, Utilizador
 from schemas import MensagemIACreate
 from routers.usuarios import get_utilizador_atual
-from services.anthropic_service import enviar_mensagem
-
+from services.groq_service import enviar_mensagem
 router = APIRouter(prefix="/ia", tags=["IA Académica"])
 
 @router.post("/conversas", status_code=201)
@@ -68,6 +67,8 @@ def enviar_mensagem_ia(
     try:
         resposta_texto = enviar_mensagem(mensagens_anthropic)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Erro na IA: {str(e)}")
 
     # Guarda resposta

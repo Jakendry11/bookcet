@@ -3,6 +3,7 @@ import { Brain, Map, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "@/context/AuthContext"
 
 const API_URL = "http://localhost:8000"
 
@@ -48,15 +49,22 @@ export default function Login() {
     }
   }
 
+  const { login } = useAuth()
+
   const handleLoginAuto = async (e, p) => {
-    const res = await fetch(`${API_URL}/auth/login`, {
+    const res = await fetch(`http://localhost:8000/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: e, password: p }),
     })
     const data = await res.json()
     if (res.ok) {
-      localStorage.setItem("token", data.access_token)
+      // Busca dados do utilizador
+      const resMe = await fetch("http://localhost:8000/usuarios/me", {
+        headers: { Authorization: `Bearer ${data.access_token}` }
+      })
+      const utilizador = await resMe.json()
+      login(data.access_token, utilizador)
       navigate("/onboarding")
     }
   }
@@ -69,7 +77,7 @@ export default function Login() {
     setCarregando(true)
     setErro("")
     try {
-      const res = await fetch(`${API_URL}/auth/login`, {
+      const res = await fetch(`http://localhost:8000/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: emailLogin, password: passwordLogin }),
@@ -79,7 +87,11 @@ export default function Login() {
         setErro(data.detail || "Email ou palavra-passe incorrectos")
         return
       }
-      localStorage.setItem("token", data.access_token)
+      const resMe = await fetch("http://localhost:8000/usuarios/me", {
+        headers: { Authorization: `Bearer ${data.access_token}` }
+      })
+      const utilizador = await resMe.json()
+      login(data.access_token, utilizador)
       navigate("/feed")
     } catch {
       setErro("Erro de ligação ao servidor")

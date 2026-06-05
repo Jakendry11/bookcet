@@ -2,6 +2,7 @@ import { Bell, Brain, BookOpen, Home, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { useAuth } from "@/context/AuthContext" 
 
 const navLinks = [
   { label: "Feed", icon: Home, href: "/feed" },
@@ -10,6 +11,9 @@ const navLinks = [
 ]
 
 export default function Navbar({ activePage = "feed" }) {
+
+  const { iniciais } = useAuth()
+  
   return (
     <nav className="w-full bg-[#0D2B6B] px-6 h-14 flex items-center justify-between sticky top-0 z-50">
       <span className="text-[#F5C200] font-bold text-lg tracking-wide">
@@ -54,7 +58,7 @@ export default function Navbar({ activePage = "feed" }) {
 
         <Avatar className="w-8 h-8 border-2 border-[#F5C200] cursor-pointer">
           <AvatarFallback className="bg-[#1A4BA0] text-white text-xs font-medium">
-            ML
+            {iniciais}
           </AvatarFallback>
         </Avatar>
       </div>

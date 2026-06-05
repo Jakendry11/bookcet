@@ -1,16 +1,15 @@
-# React + Vite
+# BOOKCET
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+O Bookcet é uma plataforma web colaborativa de aprendizagem, desenhada para a comunidade escolar. Funciona como um Brainly local, mas com uma camada de Inteligência Artificial integrada que vai além de responder perguntas — acompanha o percurso académico do estudante, conhece o programa escolar do seu trimestre e ajuda-o a identificar e corrigir as suas dificuldades através de um roadmap personalizado.
 
-Currently, two official plugins are available:
+Objetivo Principal
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Criar um espaço digital onde os estudantes da escola possam colaborar, tirar dúvidas, partilhar recursos e receber apoio personalizado de uma IA para melhorar o seu desempenho académico.
 
-## React Compiler
+Objetivos Específicos
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+• Facilitar a troca de conhecimento entre colegas da mesma escola
+• Disponibilizar uma IA focada no desenvolvimento académico do estudante
+• Gerar roadmaps personalizados com base no programa trimestral do estudante
+• Acompanhar a evolução do estudante ao longo do ano letivo
+• Centralizar recursos bibliográficos educativos numa biblioteca partilhada

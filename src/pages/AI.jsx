@@ -1,35 +1,65 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Send, Paperclip } from "lucide-react"
-import Navbar from "@/components/ui/navbar"
+import Navbar from "@/components/ui/Navbar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { useAuth } from "@/context/AuthContext"
+
+const API_URL = "http://localhost:8000"
 
 export default function IA() {
+  const { iniciais } = useAuth()
   const [mensagens, setMensagens] = useState([])
   const [inputValue, setInputValue] = useState("")
   const [carregando, setCarregando] = useState(false)
+  const [conversaId, setConversaId] = useState(null)
+
+  // Cria uma conversa ao entrar na página
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    if (!token) return
+    fetch(`${API_URL}/ia/conversas`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => setConversaId(data.id))
+      .catch(() => console.error("Erro ao criar conversa"))
+  }, [])
 
   const enviarMensagem = async () => {
-    if (!inputValue.trim()) return
+    if (!inputValue.trim() || !conversaId || carregando) return
 
-    const novaMensagem = {
-      id: Date.now(),
-      papel: "user",
-      conteudo: inputValue,
-    }
-
-    setMensagens([...mensagens, novaMensagem])
+    const texto = inputValue
+    const novaMensagem = { id: Date.now(), papel: "user", conteudo: texto }
+    setMensagens(prev => [...prev, novaMensagem])
     setInputValue("")
     setCarregando(true)
 
-    // Aqui será feita a chamada à API do backend
-    // const resposta = await fetch('/api/ia/enviar-mensagem', { ... })
-    
-    // Por agora, apenas simula
-    setTimeout(() => {
+    try {
+      const token = localStorage.getItem("token")
+      const res = await fetch(`${API_URL}/ia/conversas/${conversaId}/mensagens`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ conteudo: texto })
+      })
+      const data = await res.json()
+      setMensagens(prev => [
+        ...prev,
+        { id: Date.now(), papel: "assistant", conteudo: data.conteudo }
+      ])
+    } catch {
+      setMensagens(prev => [
+        ...prev,
+        { id: Date.now(), papel: "assistant", conteudo: "Erro ao contactar a IA. Tenta novamente." }
+      ])
+    } finally {
       setCarregando(false)
-    }, 500)
+    }
   }
 
   return (
@@ -40,7 +70,22 @@ export default function IA() {
 
         {/* Sidebar */}
         <div className="col-span-1 flex flex-col gap-4">
-          <Button className="w-full bg-[#F5C200] text-[#0D2B6B] hover:bg-[#e6b800] text-sm">
+          <Button
+            onClick={() => {
+              const token = localStorage.getItem("token")
+              if (!token) return
+              fetch(`${API_URL}/ia/conversas`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` }
+              })
+                .then(res => res.json())
+                .then(data => {
+                  setConversaId(data.id)
+                  setMensagens([])
+                })
+            }}
+            className="w-full bg-[#F5C200] text-[#0D2B6B] hover:bg-[#e6b800] text-sm"
+          >
             + Nova conversa
           </Button>
 
@@ -102,7 +147,7 @@ export default function IA() {
                     {msg.papel === "user" && (
                       <Avatar className="w-8 h-8 flex-shrink-0">
                         <AvatarFallback className="bg-[#1A4BA0] text-white text-xs font-medium">
-                          U
+                          {iniciais}
                         </AvatarFallback>
                       </Avatar>
                     )}
@@ -139,7 +184,7 @@ export default function IA() {
               <Button
                 onClick={enviarMensagem}
                 className="bg-[#F5C200] text-[#0D2B6B] hover:bg-[#e6b800]"
-                disabled={carregando}
+                disabled={carregando || !conversaId}
               >
                 <Send size={16} />
               </Button>
