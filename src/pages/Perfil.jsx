@@ -1,152 +1,87 @@
-import { useState, useEffect } from "react"
-import { Settings, LogOut } from "lucide-react"
-import Navbar from "@/components/ui/navbar"
+import { useAuth } from "@/context/AuthContext"
+import { useNavigate } from "react-router-dom"
+import { LogOut, User, BookOpen, GraduationCap, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 export default function Perfil() {
-  const [aba, setAba] = useState("perguntas")
-  const [utilizador, setUtilizador] = useState(null)
-  const [carregando, setCarregando] = useState(true)
+  const { utilizador, iniciais, logout } = useAuth()
+  const navigate = useNavigate()
 
-  // Aqui será carregado o utilizador via API
-  // useEffect(() => {
-  //   fetch('/api/me')
-  //     .then(res => res.json())
-  //     .then(data => { setUtilizador(data); setCarregando(false); })
-  // }, [])
-
-  if (carregando) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar activePage="perfil" />
-        <div className="flex items-center justify-center h-96">
-          <p className="text-slate-400">A carregar...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!utilizador) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar activePage="perfil" />
-        <div className="flex items-center justify-center h-96">
-          <p className="text-slate-400">Por favor faça login</p>
-        </div>
-      </div>
-    )
+  const handleLogout = () => {
+    logout()
+    navigate("/login")
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar activePage="perfil" />
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl p-8">
 
-      <div className="max-w-5xl mx-auto px-6 py-8">
+        {/* Avatar e nome */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-20 h-20 rounded-full bg-[#0D2B6B] flex items-center justify-center text-white text-2xl font-semibold mb-4">
+            {iniciais}
+          </div>
+          <h1 className="text-2xl font-semibold text-[#0D2B6B]">
+            {utilizador?.nome || "—"}
+          </h1>
+          <p className="text-sm text-slate-400 mt-1">Aluno</p>
+        </div>
 
-        {/* Banner do perfil */}
-        <div className="bg-[#0D2B6B] rounded-xl p-8 mb-8 flex items-center gap-6">
-          <Avatar className="w-20 h-20 border-4 border-[#F5C200]">
-            <AvatarFallback className="bg-[#1A4BA0] text-white text-2xl font-bold">
-              {utilizador?.iniciais || "U"}
-            </AvatarFallback>
-          </Avatar>
+        {/* Dados */}
+        <div className="space-y-4 mb-8">
 
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-white mb-2">{utilizador?.nome || "Utilizador"}</h1>
-            <p className="text-white/70 text-sm mb-3">
-              {utilizador?.ano_escolar} · {utilizador?.curso}
-            </p>
-            <div className="flex gap-8">
-              <div>
-                <p className="text-[#F5C200] font-bold text-2xl">{utilizador?.total_perguntas || 0}</p>
-                <p className="text-white/60 text-xs">perguntas</p>
-              </div>
-              <div>
-                <p className="text-[#F5C200] font-bold text-2xl">{utilizador?.total_respostas || 0}</p>
-                <p className="text-white/60 text-xs">respostas</p>
-              </div>
-              <div>
-                <p className="text-[#F5C200] font-bold text-2xl">{utilizador?.pontos || 0}</p>
-                <p className="text-white/60 text-xs">pontos</p>
-              </div>
+          <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl">
+            <div className="w-9 h-9 rounded-lg bg-[#EBF2FF] flex items-center justify-center shrink-0">
+              <User size={16} className="text-[#0D2B6B]" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 mb-0.5">Nome completo</p>
+              <p className="text-sm font-medium text-slate-700">{utilizador?.nome || "—"}</p>
             </div>
           </div>
 
-          <div className="flex gap-2">
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-              <Settings size={18} />
-            </Button>
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-              <LogOut size={18} />
-            </Button>
-          </div>
-        </div>
-
-        {/* Abas */}
-        <div className="bg-white border-b border-slate-200 mb-6 rounded-t-xl">
-          <div className="flex gap-8 px-6">
-            <button
-              onClick={() => setAba("perguntas")}
-              className={`py-4 font-medium text-sm border-b-2 transition-colors ${
-                aba === "perguntas"
-                  ? "text-[#0D2B6B] border-[#0D2B6B]"
-                  : "text-slate-500 border-transparent hover:text-slate-700"
-              }`}
-            >
-              Minhas Perguntas
-            </button>
-            <button
-              onClick={() => setAba("roadmap")}
-              className={`py-4 font-medium text-sm border-b-2 transition-colors ${
-                aba === "roadmap"
-                  ? "text-[#0D2B6B] border-[#0D2B6B]"
-                  : "text-slate-500 border-transparent hover:text-slate-700"
-              }`}
-            >
-              Meu Roadmap
-            </button>
-          </div>
-        </div>
-
-        {/* Conteúdo das abas */}
-        <div className="grid grid-cols-3 gap-6">
-
-          {/* Coluna principal */}
-          <div className="col-span-2">
-            {aba === "perguntas" && (
-              <div className="bg-white border border-slate-200 rounded-xl p-8 text-center">
-                <p className="text-slate-400">Nenhuma pergunta ainda</p>
-              </div>
-            )}
-
-            {aba === "roadmap" && (
-              <div className="bg-white border border-slate-200 rounded-xl p-8 text-center">
-                <p className="text-slate-400">Roadmap será carregado aqui</p>
-              </div>
-            )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="col-span-1 flex flex-col gap-4">
-            <div className="bg-white border border-slate-200 rounded-xl p-4">
-              <p className="text-xs font-medium text-[#0D2B6B] mb-3">Informações</p>
-              <div className="space-y-2 text-xs text-slate-600">
-                <p><strong>Email:</strong> {utilizador?.email}</p>
-                <p><strong>Ano:</strong> {utilizador?.ano_escolar}</p>
-                <p><strong>Curso:</strong> {utilizador?.curso}</p>
-              </div>
+          <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl">
+            <div className="w-9 h-9 rounded-lg bg-[#EBF2FF] flex items-center justify-center shrink-0">
+              <Mail size={16} className="text-[#0D2B6B]" />
             </div>
+            <div>
+              <p className="text-xs text-slate-400 mb-0.5">Email</p>
+              <p className="text-sm font-medium text-slate-700">{utilizador?.email || "—"}</p>
+            </div>
+          </div>
 
-            <div className="bg-white border border-slate-200 rounded-xl p-4">
-              <p className="text-xs font-medium text-[#0D2B6B] mb-3">Disciplinas</p>
-              <p className="text-xs text-slate-400">
-                {utilizador?.disciplinas?.length || 0} disciplinas registadas
-              </p>
+          <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl">
+            <div className="w-9 h-9 rounded-lg bg-[#EBF2FF] flex items-center justify-center shrink-0">
+              <BookOpen size={16} className="text-[#0D2B6B]" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 mb-0.5">Curso</p>
+              <p className="text-sm font-medium text-slate-700">{utilizador?.curso || "—"}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl">
+            <div className="w-9 h-9 rounded-lg bg-[#EBF2FF] flex items-center justify-center shrink-0">
+              <GraduationCap size={16} className="text-[#0D2B6B]" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 mb-0.5">Ano escolar</p>
+              <p className="text-sm font-medium text-slate-700">{utilizador?.ano_escolar || "—"}</p>
             </div>
           </div>
 
         </div>
+
+        {/* Logout */}
+        <Button
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2 bg-red-50 text-red-500 hover:bg-red-100 border border-red-200 font-medium"
+          variant="ghost"
+        >
+          <LogOut size={16} />
+          Terminar sessão
+        </Button>
+
       </div>
     </div>
   )
